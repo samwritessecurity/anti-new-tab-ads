@@ -89,7 +89,7 @@
 
         blockedCount++;
         log('Blocked new tab/window →', url || '(no url)');
-
+        
         if (debug) {
             showNotification(`Blocked ad tab (${blockedCount})`);
         }
