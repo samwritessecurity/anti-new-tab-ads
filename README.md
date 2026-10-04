@@ -1,53 +1,51 @@
 # Anti New-Tab Ads
 
-A lightweight userscript that prevents video streaming & general sites from opening unwanted ad tabs when you interact with the player (volume, seek bar, clicks, etc.).
+A Violentmonkey userscript that stops video sites from opening **ad tabs** when you play, change volume, or seek.
 
-## Why this exists
+It is **not** a general ad blocker. It does not hide banners. It blocks the hijack: a new tab (or popunder) that fires because you touched the player.
 
-Traditional ad blockers (uBlock Origin, Brave Shields, AdGuard, etc.) are excellent, but they often miss a specific type of aggressive ad:
+## Why this still matters if you already use an ad blocker
 
-- The site loads JavaScript from its own domain
-- That script waits for a normal action (changing volume, dragging the progress bar, clicking the player)
-- Then it forces a new tab with an advertisement
+Brave Shields and uBlock Origin block **known ad addresses**.
 
-This userscript works by directly overriding `window.open`, catching many of these cases that normal ad blockers miss.  
-It is meant to be used **together with** your regular ad blocker.
+Streaming sites often:
 
-## Features
+- put the player in a **different domain iframe**
+- wait for your **click**
+- then call `window.open`, a fake `_blank` link, or a `_blank` form
 
-- Blocks unwanted new tabs opened by video players
-- Keyboard shortcuts for easy control
-- On-screen notifications
-- Blocked counter
-- Hold `Ctrl` (or `Cmd` on Mac) to temporarily allow a new tab
-- Extremely lightweight
+The browser treats that as “the user asked for a tab.” Filter lists never see a classic ad URL. This script hooks those open/link/form tricks, including inside the player frame.
 
-## Keyboard Shortcuts
+## Install (desktop)
 
-| Shortcut            | Action                          |
-|---------------------|---------------------------------|
-| `Alt + Shift + A`   | Toggle protection ON / OFF      |
-| `Alt + Shift + D`   | Toggle debug notifications      |
-| `Alt + Shift + S`   | Show current status + blocked count |
+1. Install [Violentmonkey](https://violentmonkey.github.io/) in Brave (or Chrome / Firefox).
+2. Open Violentmonkey → **+** → **New**.
+3. Paste [`anti-new-tab-ads.user.js`](anti-new-tab-ads.user.js).
+4. Save, then hard-refresh the video page.
 
-## Installation
+You should see a small **shield** (bottom-left). Click it for status, or hide it.
 
-1. Install a userscript manager:
-   - [Violentmonkey](https://violentmonkey.github.io/) (recommended)
-   - or [Tampermonkey](https://www.tampermonkey.net/)
+Do not run an unpacked copy of this and the userscript at the same time.
 
-2. Install the script:  
-   **[Click here to install](https://raw.githubusercontent.com/samwritessecurity/anti-new-tab-ads/main/anti-new-tab-ads.user.js)**
+## Config
 
-3. Refresh any video streaming page or website in use.
+At the top of the script:
 
-## Configuration
-
-You can edit these options at the top of the script:
-
-```js
+```javascript
 const CONFIG = {
-    debug: true,               // Show notifications + console logs
-    allowWithCtrl: true,       // Allow new tabs when holding Ctrl/Cmd
-    defaultEnabled: true,      // Start with protection enabled
+  debug: true,
+  allowWithCtrl: true,
+  defaultEnabled: true,
+  showShield: true,          // false = no on-page shield; blocking still runs
+  defaultPosition: "bottom-left",
 };
+
+## Shortcuts
+
+| Keys | Action |
+|---|---|
+| Alt+Shift+A | Protection on/off |
+| Alt+Shift+D | Debug toasts |
+| Alt+Shift+S | Status |
+| Alt+Shift+U | Show shield |
+| Ctrl/Cmd + click | Allow that one new tab (if the switch is on) |
