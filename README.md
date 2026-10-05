@@ -1,51 +1,119 @@
 # Anti New-Tab Ads
 
-A Violentmonkey userscript that stops video sites from opening **ad tabs** when you play, change volume, or seek.
+A lightweight userscript that prevents unwanted new tabs and related browsing-context behaviour, especially when interacting with video players and streaming websites.
 
-It is **not** a general ad blocker. It does not hide banners. It blocks the hijack: a new tab (or popunder) that fires because you touched the player.
+Anti New-Tab Ads started as a small JavaScript userscript that intercepted unwanted `window.open()` calls.
 
-## Why this still matters if you already use an ad blocker
+It has since grown into a more complete browser utility with iframe-aware protection, new-tab link and form handling, persistent settings, keyboard shortcuts, and a small desktop control panel.
 
-Brave Shields and uBlock Origin block **known ad addresses**.
+> **Current version: 0.8.4**
 
-Streaming sites often:
+---
 
-- put the player in a **different domain iframe**
-- wait for your **click**
-- then call `window.open`, a fake `_blank` link, or a `_blank` form
+## Why Anti New-Tab Ads?
 
-The browser treats that as “the user asked for a tab.” Filter lists never see a classic ad URL. This script hooks those open/link/form tricks, including inside the player frame.
+Some websites open unwanted tabs when you interact with a video player.
 
-## Install (desktop)
+You click the volume button.
 
-1. Install [Violentmonkey](https://violentmonkey.github.io/) in Brave (or Chrome / Firefox).
-2. Open Violentmonkey → **+** → **New**.
-3. Paste [`anti-new-tab-ads.user.js`](anti-new-tab-ads.user.js).
-4. Save, then hard-refresh the video page.
+You move the timeline.
 
-You should see a small **shield** (bottom-left). Click it for status, or hide it.
+You click the player.
 
-Do not run an unpacked copy of this and the userscript at the same time.
+Instead of simply performing the action, the website may attempt to open another tab or browsing context.
 
-## Config
+Traditional ad blockers can address many forms of advertising, but Anti New-Tab Ads focuses on a narrower problem:
 
-At the top of the script:
+> **Preventing unwanted new-tab and related browsing-context behaviour.**
 
-```javascript
-const CONFIG = {
-  debug: true,
-  allowWithCtrl: true,
-  defaultEnabled: true,
-  showShield: true,          // false = no on-page shield; blocking still runs
-  defaultPosition: "bottom-left",
-};
+It is designed to work alongside a normal content blocker rather than replace one.
 
-## Shortcuts
+---
 
-| Keys | Action |
-|---|---|
-| Alt+Shift+A | Protection on/off |
-| Alt+Shift+D | Debug toasts |
-| Alt+Shift+S | Status |
-| Alt+Shift+U | Show shield |
-| Ctrl/Cmd + click | Allow that one new tab (if the switch is on) |
+## What's New in 0.8.4?
+
+Version 0.8.4 represents a significant evolution of the project.
+
+### 🛡️ New Desktop UI
+
+Anti New-Tab Ads now has a small shield button and control panel on the top-level page.
+
+The interface provides access to:
+
+- Protection status
+- Blocked activity for the current tab
+- Last blocked destination
+- Debug mode
+- Ctrl/Cmd popup exception
+- Shield position
+- UI visibility
+
+The UI can be hidden without disabling the protection.
+
+### 🖼️ iframe-Aware Protection
+
+Video players and other content can run inside iframes.
+
+Anti New-Tab Ads now detects frame contexts and attempts to apply its protection to iframe windows as well.
+
+The script also monitors dynamically created iframes and communicates protection state and blocked events between iframe and top-level contexts.
+
+### 🔗 More Than `window.open()`
+
+The original implementation focused primarily on `window.open()`.
+
+The current version also handles additional mechanisms that can result in unwanted new browsing contexts, including:
+
+- `window.open()`
+- Links using `_blank`
+- Links using `_new`
+- Forms targeting `_blank`
+- Forms targeting `_new`
+- Dynamically created iframe contexts
+
+### 💾 Persistent Settings
+
+User preferences are stored in browser storage.
+
+The following settings can persist between page loads:
+
+- Protection state
+- UI visibility
+- Debug mode
+- Ctrl/Cmd exception
+- Shield position
+
+Blocked activity is tracked separately for the current browser session.
+
+### 🧩 Shadow DOM UI
+
+The control panel is created inside a closed Shadow DOM.
+
+This helps isolate the Anti New-Tab Ads interface from the CSS and DOM styling of the website where the userscript is running.
+
+---
+
+## Features
+
+### New-Tab Protection
+
+The primary purpose of the project is to prevent unwanted new tabs and related browsing-context actions.
+
+When protection is enabled, the script intercepts supported attempts before the unwanted browsing context is opened.
+
+### iframe Support
+
+Many video players are embedded inside iframes.
+
+Anti New-Tab Ads can operate inside frame contexts and communicate with the top-level page.
+
+The UI itself is displayed only on the top-level page.
+
+### Link Protection
+
+The script monitors interactions with links and checks for new-tab targets such as:
+
+```html
+<a href="https://example.com" target="_blank">
+    Open something
+</a>
